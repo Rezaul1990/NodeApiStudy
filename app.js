@@ -16,7 +16,7 @@ connectDB();
 app.use(cors());
 
 // ✅ Serve static images (upload folder)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 
 // ✅ Only parse JSON where needed (do NOT apply it blindly to file uploads)
 app.use((req, res, next) => {

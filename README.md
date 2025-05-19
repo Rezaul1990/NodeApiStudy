@@ -98,31 +98,34 @@ Authorization: Bearer <your-token>
 ```
 
 
-## 📤 POST Request Body Examples
+### 📝 Create Profile with Image (POST /api/profiles)
 
-### 👤 Profile - Create
-
-**Endpoint:** `POST /api/profiles`  
 **Headers:**
+
 ```
 Authorization: Bearer your-jwt-token
-Content-Type: application/json
+Content-Type: multipart/form-data
 ```
 
-**Body:**
-```json
-{
-  "firstname": "John",
-  "lastname": "Doe",
-  "phonenumber": "01700000000",
-  "address": "123 Main Street",
-  "notes": "Regular visitor",
-  "gender": "Male",
-  "agree": true
-}
-```
+**Body (form-data):**
 
+| Key           | Type  | Value                   |
+|---------------|-------|-------------------------|
+| firstname     | Text  | John                    |
+| lastname      | Text  | Doe                     |
+| phonenumber   | Text  | 01700000000             |
+| address       | Text  | 123 Main St             |
+| notes         | Text  | Sample note             |
+| gender        | Text  | Male / Female / Other   |
+| agree         | Text  | true                    |
+| role          | Text  | admin                   |
+| profilePhoto  | File  | (upload an image file)  |
 
+---
+
+### 🔄 Update Profile (PUT /api/profiles/:id)
+
+**Same as POST**, with any fields to update. You may include a new `profilePhoto` if changing the image.
 
 ### 🧑‍🤝‍🧑 MemberProfile - Create
 

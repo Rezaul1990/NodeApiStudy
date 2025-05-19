@@ -7,7 +7,7 @@ exports.createProfile = async (req, res) => {
 
     // Multer file error (you can also try-catch req.file check separately)
     if (req.file) {
-      data.profilePhoto = req.file.path;
+      data.profilePhoto = req.file.filename;
     }
 
     const profile = await Profile.create(data);
@@ -24,7 +24,7 @@ exports.updateProfile = async (req, res) => {
     const data = req.body;
 
     if (req.file) {
-      data.profilePhoto = req.file.path;
+      data.profilePhoto = req.file.filename;
     }
 
     const profile = await Profile.findByIdAndUpdate(req.params.id, data, { new: true });
