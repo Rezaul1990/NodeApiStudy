@@ -27,9 +27,7 @@ exports.loginUser = async (req, res) => {
         email: user.email,
       },
     };
-
-    const secretKey = 'hsgdfsdhfsjdfhdjfhsfhsdfjyueyruywbsf';  // Replace this with your actual secret
-    const token = jwt.sign(payload, secretKey, { expiresIn: '2h' });
+    const token = jwt.sign(payload,process.env.JWT_SECRET, { expiresIn: '2h' });
 
     res.json({ token });
   } catch (err) {

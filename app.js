@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 const profileRoutes = require('./routes/profileRoutes');
 const memberRoutes = require('./routes/memberProfileRoutes');
@@ -8,18 +9,34 @@ const protect = require('./middleware/auth');
 
 const app = express();
 
-// Connect to MongoDB
+// Connect DB
 connectDB();
 
-// Middlewares
+// Middleware
 app.use(cors());
-app.use(express.json());
 
-// Routes
+// ✅ Serve static images (upload folder)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ✅ Only parse JSON where needed (do NOT apply it blindly to file uploads)
+app.use((req, res, next) => {
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    next(); // Skip JSON body parser for file uploads
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Public route (auth/login/register)
 app.use('/api/auth', authRoutes);
+
+// ✅ Protected routes
 app.use('/api/profiles', protect, profileRoutes);
 app.use('/api/memberprofile', protect, memberRoutes);
 
+// Test route
 app.get('/', (req, res) => {
   res.send("🚀 Profile API Running");
 });

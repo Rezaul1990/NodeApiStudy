@@ -12,7 +12,15 @@ const profileSchema = new mongoose.Schema({
   },
   agree: {
     type: Boolean,
-    default: false, // ✅ default is unchecked
+    default: false,
+  },
+  role: {
+    type: String,
+    required: true,
+  },
+  profilePhoto: {
+    type: String, 
+    default: "",  
   },
 }, { timestamps: true });
 
