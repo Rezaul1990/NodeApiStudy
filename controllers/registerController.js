@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 exports.registerUser = async (req, res) => {
@@ -16,12 +17,23 @@ exports.registerUser = async (req, res) => {
       password,
     });
 
-    // Just save — hashing will happen automatically in pre('save')
-    await user.save();
+    await user.save(); // password hashed in pre-save hook (using bcrypt)
 
-    res.status(201).json({ message: 'User registered successfully' });
+    // ✅ Generate JWT token and send in response body
+    const payload = {
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
+
+    // ✅ Fix: return token properly
+    res.status(201).json({ token });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Registration Error:', err.message);
+    res.status(500).json({ message: 'Server error' });
   }
 };
