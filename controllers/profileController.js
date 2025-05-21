@@ -1,11 +1,13 @@
 const Profile = require('../models/profileModel');
 
-// CREATE with image
+// ✅ CREATE profile with image and user
 exports.createProfile = async (req, res) => {
   try {
-    const data = req.body;
+    const data = {
+      ...req.body,
+      user: req.user.id,
+    };
 
-    // Multer file error (you can also try-catch req.file check separately)
     if (req.file) {
       data.profilePhoto = req.file.filename;
     }
@@ -13,12 +15,12 @@ exports.createProfile = async (req, res) => {
     const profile = await Profile.create(data);
     res.status(201).json(profile);
   } catch (err) {
-    console.error('❌ Multer or Mongoose Error:', err.message);
+    console.error('❌ Error:', err.message);
     res.status(400).json({ message: err.message });
   }
 };
 
-// UPDATE with image
+// ✅ UPDATE with image (only if user owns it)
 exports.updateProfile = async (req, res) => {
   try {
     const data = req.body;
@@ -27,43 +29,46 @@ exports.updateProfile = async (req, res) => {
       data.profilePhoto = req.file.filename;
     }
 
-    const profile = await Profile.findByIdAndUpdate(req.params.id, data, { new: true });
-    if (!profile) return res.status(404).json({ message: "Not found" });
+    const profile = await Profile.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id }, // only allow own profile
+      data,
+      { new: true }
+    );
+
+    if (!profile) return res.status(404).json({ message: 'Not found or not authorized' });
     res.json(profile);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
-
-// READ ALL
+// ✅ READ all profiles of logged-in user
 exports.getAllProfiles = async (req, res) => {
   try {
-    const profiles = await Profile.find();
+    const profiles = await Profile.find({ user: req.user.id });
     res.json(profiles);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// READ ONE
+// ✅ READ one by ID (if it belongs to user)
 exports.getProfileById = async (req, res) => {
   try {
-    const profile = await Profile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Not found" });
+    const profile = await Profile.findOne({ _id: req.params.id, user: req.user.id });
+    if (!profile) return res.status(404).json({ message: 'Not found or not authorized' });
     res.json(profile);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-
-// DELETE
+// ✅ DELETE (only user's own profile)
 exports.deleteProfile = async (req, res) => {
   try {
-    const profile = await Profile.findByIdAndDelete(req.params.id);
-    if (!profile) return res.status(404).json({ message: "Not found" });
-    res.json({ message: "Deleted" });
+    const profile = await Profile.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!profile) return res.status(404).json({ message: 'Not found or not authorized' });
+    res.json({ message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

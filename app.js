@@ -6,6 +6,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const memberRoutes = require('./routes/memberProfileRoutes');
 const authRoutes = require('./routes/authRoutes');
 const protect = require('./middleware/auth');
+const classRoutes = require('./routes/classRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 // ✅ Protected routes
 app.use('/api/profiles', protect, profileRoutes);
 app.use('/api/memberprofile', protect, memberRoutes);
+app.use('/api/classes',protect, classRoutes); 
 
 // Test route
 app.get('/', (req, res) => {

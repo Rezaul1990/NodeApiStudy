@@ -1,37 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');  // Adjust the path as needed
 
-// In your login route, directly use the JWT_SECRET string
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    let user = await User.findOne({ email });
-    
-    if (!user) {
+    const user = await User.findOne({ email });
+    if (!user || !(await user.matchPassword(password))) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check if password matches
-    const isMatch = await user.matchPassword(password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Create and send JWT token
-    const payload = {
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-      },
-    };
-    const token = jwt.sign(payload,process.env.JWT_SECRET, { expiresIn: '2h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
 
     res.json({ token });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Login Error:', err.message);
+    res.status(500).json({ message: 'Server error' });
   }
 };
