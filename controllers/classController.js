@@ -126,15 +126,20 @@ exports.getMyEnrolledClasses = async (req, res) => {
 };
 
 // ✅ Admin: See classes with enrolled users
+// ✅ Admin: See all classes with enrolled users
 exports.getClassesWithEnrollments = async (req, res) => {
   try {
-    const classes = await Class.find({ user: req.user._id })
+    const classes = await Class.find({ enrolledUsers: { $exists: true, $not: { $size: 0 } } })
       .populate('coaches', 'name')
       .populate('enrolledUsers', 'name email');
 
     res.status(200).json(classes);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching classes with enrollments', error: err.message });
+    res.status(500).json({
+      message: 'Error fetching enrolled classes',
+      error: err.message,
+    });
   }
 };
+
 
