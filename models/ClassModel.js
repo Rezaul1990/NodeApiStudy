@@ -10,14 +10,12 @@ const classSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true, 
+    required: true,
   },
-
   startTime: {
     type: Date,
     required: true,
   },
-
   endTime: {
     type: Date,
     required: true,
@@ -25,13 +23,18 @@ const classSchema = new mongoose.Schema({
   coaches: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Coach',
-    }],
-
+  }],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
+
+  // ✅ Add enrolled users
+  enrolledUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Class', classSchema);

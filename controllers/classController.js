@@ -37,7 +37,10 @@ exports.createClass = async (req, res) => {
 // ✅ Get all classes by user
 exports.getAllClasses = async (req, res) => {
   try {
-   const classes = await Class.find({ user: req.user.id }).populate('coaches', 'name specialty bio');
+    const classes = await Class.find({})
+      .populate('coaches', 'name specialty bio')  
+      .populate('user', 'email');
+
     res.status(200).json(classes);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching classes', error: err.message });
@@ -88,3 +91,50 @@ exports.deleteClass = async (req, res) => {
     });
   }
 };
+
+// ✅ Enroll in a class
+exports.enrollInClass = async (req, res) => {
+  const { classId } = req.params;
+
+  try {
+    const classDoc = await Class.findById(classId);
+    if (!classDoc) return res.status(404).json({ message: 'Class not found' });
+
+    if (classDoc.enrolledUsers.includes(req.user._id)) {
+      return res.status(400).json({ message: 'Already enrolled' });
+    }
+
+    classDoc.enrolledUsers.push(req.user._id);
+    await classDoc.save();
+
+    res.status(200).json({ message: 'Successfully enrolled' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error enrolling in class', error: err.message });
+  }
+};
+
+// ✅ Get all enrolled classes for current user
+exports.getMyEnrolledClasses = async (req, res) => {
+  try {
+    const classes = await Class.find({ enrolledUsers: req.user._id })
+      .populate('coaches', 'name')
+      .populate('user', 'email');
+    res.status(200).json(classes);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching enrolled classes', error: err.message });
+  }
+};
+
+// ✅ Admin: See classes with enrolled users
+exports.getClassesWithEnrollments = async (req, res) => {
+  try {
+    const classes = await Class.find({ user: req.user._id })
+      .populate('coaches', 'name')
+      .populate('enrolledUsers', 'name email');
+
+    res.status(200).json(classes);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching classes with enrollments', error: err.message });
+  }
+};
+

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');  // Adjust the path as needed
 
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -14,7 +14,14 @@ exports.loginUser = async (req, res) => {
       expiresIn: '7d',
     });
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     console.error('Login Error:', err.message);
     res.status(500).json({ message: 'Server error' });
